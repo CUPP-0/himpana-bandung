@@ -19,7 +19,8 @@
 .wa-spin{animation:wa-spin 1s linear infinite}
 @keyframes wa-spin{to{transform:rotate(360deg)}}
 
-\n/* WhatsApp group directory */
+
+/* WhatsApp group directory */
 .wa-groups{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:22px}
 .wa-groups-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
 .wa-groups-head h3{font:700 14px Manrope;margin:0 0 4px}
