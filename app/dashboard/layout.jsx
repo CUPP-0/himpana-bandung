@@ -1,5 +1,5 @@
 import Sidebar from "@/components/Sidebar";
-import WhatsAppConnection from "@/components/WhatsAppConnection";
+import WhatsAppConnection from "@/components/WhatsAppConnection";\nimport WhatsAppGroups from "@/components/WhatsAppGroups";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
