@@ -18,3 +18,17 @@
 .wa-waiting button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:7px 10px;font-size:11px;font-weight:700;color:var(--ink)}
 .wa-spin{animation:wa-spin 1s linear infinite}
 @keyframes wa-spin{to{transform:rotate(360deg)}}
+
+\n/* WhatsApp group directory */
+.wa-groups{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:22px}
+.wa-groups-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.wa-groups-head h3{font:700 14px Manrope;margin:0 0 4px}
+.wa-groups-head p{font-size:11px;color:var(--muted);margin:0}
+.wa-groups-list{display:grid;gap:8px}
+.wa-group-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px;border:1px solid var(--line);border-radius:9px;min-width:0}
+.wa-group-info{min-width:0;flex:1}
+.wa-group-info strong{display:block;font-size:12px;margin-bottom:4px;overflow-wrap:anywhere}
+.wa-group-info code{font-size:10px;color:var(--muted);overflow-wrap:anywhere}
+.wa-group-row button,.wa-groups-head button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:8px 10px;font-size:11px;font-weight:700;white-space:nowrap}
+.wa-groups-message{font-size:12px;color:var(--muted);padding:12px 0}
+@media(max-width:520px){.wa-group-row{align-items:flex-start;flex-direction:column}.wa-group-row button{width:100%}}
