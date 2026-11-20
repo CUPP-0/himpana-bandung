@@ -1,0 +1,1 @@
+import "./globals.css";export const metadata={title:"HIMPANA Bandung",description:"Sistem Informasi Manajemen HIMPANA Cabang Bandung"};export default function RootLayout({children}){return <html lang="id"><body>{children}</body></html>}
