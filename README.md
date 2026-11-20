@@ -17,4 +17,4 @@ Sistem administrasi internal HIMPANA Cabang Bandung. Next.js untuk frontend dan 
 6. Jalankan INSERT admin sesuai komentar di schema.sql melalui phpMyAdmin.
 7. npm run dev lalu buka http://localhost:3000/login
 
-Atur FONNTE_TOKEN dan WHATSAPP_GROUP_ID untuk notifikasi WhatsApp. Atur OPENAI_API_KEY untuk OCR bukti transfer. Hasil OCR harus diperiksa Admin sebelum disimpan. Untuk produksi wajib gunakan HTTPS, JWT_SECRET acak yang kuat, backup database, dan batasi akses phpMyAdmin.
+Atur GEMINI_API_KEY untuk OCR Gemini dan WHATSAPP_GROUP_ID untuk grup WhatsApp. WhatsApp berjalan melalui whatsapp-web.js dan memerlukan server Node.js persisten serta pairing QR. Lihat bagian konfigurasi WhatsApp di bawah ini. Hasil OCR harus diperiksa Admin sebelum disimpan. Untuk produksi wajib gunakan HTTPS, JWT_SECRET acak yang kuat, backup database, dan batasi akses phpMyAdmin.
