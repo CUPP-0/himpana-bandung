@@ -38,7 +38,7 @@ function extractOutputText(data) {
 }
 
 function parseJson(text) {
-  const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+  const cleaned = text.replace(/^\`\`\`(?:json)?\\s*/i, "").replace(/\\s*\`\`\`$/, "").trim();
   const start = cleaned.indexOf("{");
   const end = cleaned.lastIndexOf("}");
   if (start < 0 || end <= start) {
@@ -71,7 +71,12 @@ export async function POST(req) {
     }
 
     const bytes = Buffer.from(await file.arrayBuffer());
-    const model = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+    const configuredModel = process.env.GEMINI_MODEL?.trim();
+    // Prevent an old server-side .env value from selecting the retired model.
+    const model =
+      !configuredModel || configuredModel === "gemini-2.5-flash"
+        ? "gemini-3.8-flash"
+        : configuredModel;
 
     // Gemini Interactions API (multimodal image input).
     const response = await fetch(
