@@ -1,0 +1,1 @@
+import {NextResponse} from "next/server";export async function POST(req){const r=NextResponse.redirect(new URL("/login",req.url));r.cookies.set("himpana_session","",{httpOnly:true,path:"/",maxAge:0});return r}
