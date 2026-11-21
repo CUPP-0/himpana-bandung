@@ -28,7 +28,7 @@ export default async function PublicHome() {
     <main className="public-site">
       <header className="public-header">
         <Link href="/" className="public-brand">
-          <span className="public-brand-mark">H</span>
+          <img className="himpana-logo" src="https://himpana.com/logo-himpana.png" alt="Logo HIMPANA"/>
           <span><strong>HIMPANA</strong><small>Cabang Bandung</small></span>
         </Link>
         <nav className="public-nav">
@@ -102,7 +102,7 @@ export default async function PublicHome() {
 
       <section className="contact-band" id="kontak"><div className="public-container contact-inner"><div><span className="section-kicker">HUBUNGI KAMI</span><h2>Ada pertanyaan atau<br/>butuh bantuan?</h2><p>Silakan hubungi pengurus HIMPANA Cabang Bandung melalui kontak resmi.</p></div><div className="contact-cards"><div><Phone size={20}/><span><small>Call Center / WhatsApp</small><b>Informasi kontak menyusul</b></span></div><div><Mail size={20}/><span><small>Email</small><b>Informasi email menyusul</b></span></div></div></div></section>
 
-      <footer className="public-footer"><div className="public-container footer-main"><Link href="/" className="public-brand footer-brand"><span className="public-brand-mark">H</span><span><strong>HIMPANA</strong><small>Cabang Bandung</small></span></Link><p>Peduli dan Melayani.<br/>Menjaga silaturahmi keluarga besar pensiunan Pertamina.</p><div className="footer-links"><a href="#beranda">Beranda</a><a href="#tentang">Tentang</a><a href="#pengurus">Pengurus</a><a href="#kontak">Kontak</a><Link href="/login">Login Admin</Link></div></div><div className="public-container footer-bottom"><span>© {new Date().getFullYear()} HIMPANA Cabang Bandung.</span><span>Perhimpunan Pensiunan Pertamina</span></div></footer>
+      <footer className="public-footer"><div className="public-container footer-main"><Link href="/" className="public-brand footer-brand"><img className="himpana-logo" src="https://himpana.com/logo-himpana.png" alt="Logo HIMPANA"/><span><strong>HIMPANA</strong><small>Cabang Bandung</small></span></Link><p>Peduli dan Melayani.<br/>Menjaga silaturahmi keluarga besar pensiunan Pertamina.</p><div className="footer-links"><a href="#beranda">Beranda</a><a href="#tentang">Tentang</a><a href="#pengurus">Pengurus</a><a href="#kontak">Kontak</a><Link href="/login">Login Admin</Link></div></div><div className="public-container footer-bottom"><span>© {new Date().getFullYear()} HIMPANA Cabang Bandung.</span><span>Perhimpunan Pensiunan Pertamina</span></div></footer>
     </main>
   );
 }
