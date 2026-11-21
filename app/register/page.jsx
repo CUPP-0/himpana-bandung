@@ -20,23 +20,33 @@ export default function RegisterPage() {
 
   useEffect(()=>{ fetch(API+"/provinces.json").then(r=>r.json()).then(setProvinces).catch(()=>setError("Daftar provinsi gagal dimuat. Periksa koneksi internet.")); },[]);
   const change = (key,value) => setForm(old=>({...old,[key]:value}));
-  async function chooseRegion(type,id) {
+  async function loadRegion(url) {
     setRegionLoading(true); setError("");
-    try {
-      const names = {regencies:"kabupaten",districts:"kecamatan",villages:"kelurahan"};
-      const key = names[type];
-      const data = await fetch(API+"/"+type+"/"+id+".json").then(r=>{if(!r.ok)throw Error();return r.json()});
-      if(type==="regencies"){setRegencies(data);setDistricts([]);setVillages([]);setForm(old=>({...old,kabupaten_id:id,kabupaten:data.find(x=>x.id===id)?.name||"",kecamatan_id:"",kecamatan:"",kelurahan_id:"",kelurahan:""}));}
-      if(type==="districts"){setDistricts(data);setVillages([]);setForm(old=>({...old,kecamatan_id:id,kecamatan:data.find(x=>x.id===id)?.name||"",kelurahan_id:"",kelurahan:""}));}
-      if(type==="villages"){setForm(old=>({...old,kelurahan_id:id,kelurahan:data.find(x=>x.id===id)?.name||""}));}
-    } catch { setError("Daftar wilayah gagal dimuat. Silakan coba lagi."); }
-    finally {setRegionLoading(false);}
+    try { const data=await fetch(url).then(r=>{if(!r.ok)throw Error();return r.json()}); return data; }
+    catch { setError("Daftar wilayah gagal dimuat. Silakan coba lagi."); return null; }
+    finally { setRegionLoading(false); }
   }
-  function provinceChange(id) {
+  async function provinceChange(id) {
     const p=provinces.find(x=>x.id===id);
     setForm(old=>({...old,provinsi_id:id,provinsi:p?.name||"",kabupaten_id:"",kabupaten:"",kecamatan_id:"",kecamatan:"",kelurahan_id:"",kelurahan:""}));
     setRegencies([]);setDistricts([]);setVillages([]);
-    if(id) chooseRegion("regencies",id);
+    if(id) setRegencies(await loadRegion(API+"/regencies/"+id+".json")||[]);
+  }
+  async function kabupatenChange(id) {
+    const item=regencies.find(x=>x.id===id);
+    setForm(old=>({...old,kabupaten_id:id,kabupaten:item?.name||"",kecamatan_id:"",kecamatan:"",kelurahan_id:"",kelurahan:""}));
+    setDistricts([]);setVillages([]);
+    if(id) setDistricts(await loadRegion(API+"/districts/"+id+".json")||[]);
+  }
+  async function kecamatanChange(id) {
+    const item=districts.find(x=>x.id===id);
+    setForm(old=>({...old,kecamatan_id:id,kecamatan:item?.name||"",kelurahan_id:"",kelurahan:""}));
+    setVillages([]);
+    if(id) setVillages(await loadRegion(API+"/villages/"+id+".json")||[]);
+  }
+  function kelurahanChange(id) {
+    const item=villages.find(x=>x.id===id);
+    setForm(old=>({...old,kelurahan_id:id,kelurahan:item?.name||""}));
   }
   async function submit(e) {
     e.preventDefault();setLoading(true);setError("");
@@ -69,9 +79,9 @@ export default function RegisterPage() {
         <div className="register-grid">
           <div className="register-field full"><label>Alamat / Jalan / Nomor Rumah *</label><textarea required value={form.alamat_lengkap} onChange={e=>change("alamat_lengkap",e.target.value)} placeholder="Nama jalan, nomor rumah, RT/RW, blok, dan detail lainnya"/></div>
           <div className="register-field"><label>Provinsi *</label><select required value={form.provinsi_id} onChange={e=>provinceChange(e.target.value)}><option value="">Pilih provinsi</option>{provinces.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
-          <div className="register-field"><label>Kabupaten / Kota *</label><select required disabled={!form.provinsi_id||regionLoading} value={form.kabupaten_id} onChange={e=>chooseRegion("districts",e.target.value).then(()=>{})}><option value="">Pilih kabupaten/kota</option>{regencies.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
-          <div className="register-field"><label>Kecamatan *</label><select required disabled={!form.kabupaten_id||regionLoading} value={form.kecamatan_id} onChange={e=>chooseRegion("villages",e.target.value)}><option value="">Pilih kecamatan</option>{districts.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
-          <div className="register-field"><label>Kelurahan / Desa *</label><select required disabled={!form.kecamatan_id||regionLoading} value={form.kelurahan_id} onChange={e=>{const x=villages.find(v=>v.id===e.target.value);change("kelurahan_id",e.target.value);change("kelurahan",x?.name||"");}}><option value="">Pilih kelurahan/desa</option>{villages.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
+          <div className="register-field"><label>Kabupaten / Kota *</label><select required disabled={!form.provinsi_id||regionLoading} value={form.kabupaten_id} onChange={e=>kabupatenChange(e.target.value)}><option value="">Pilih kabupaten/kota</option>{regencies.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
+          <div className="register-field"><label>Kecamatan *</label><select required disabled={!form.kabupaten_id||regionLoading} value={form.kecamatan_id} onChange={e=>kecamatanChange(e.target.value)}><option value="">Pilih kecamatan</option>{districts.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
+          <div className="register-field"><label>Kelurahan / Desa *</label><select required disabled={!form.kecamatan_id||regionLoading} value={form.kelurahan_id} onChange={e=>kelurahanChange(e.target.value)}><option value="">Pilih kelurahan/desa</option>{villages.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
           <div className="register-field"><label>Kode Pos *</label><input required inputMode="numeric" maxLength={5} value={form.kode_pos} onChange={e=>change("kode_pos",e.target.value.replace(/\D/g,""))} placeholder="5 digit kode pos"/></div>
         </div>
         <div className="register-privacy">Dengan mengirim permohonan ini, Anda menyatakan bahwa informasi yang diberikan benar dan bersedia data digunakan untuk keperluan administrasi serta verifikasi anggota HIMPANA Cabang Bandung.</div>
