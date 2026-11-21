@@ -43,7 +43,7 @@ export default async function PublicHome() {
       </header>
 
       <section id="beranda" className="relative isolate bg-gradient-to-br from-[#0d4f35] via-[#176f49] to-[#21865a] text-white">
-        <div className="pointer-events-none absolute inset-0 -z-10 opacity-[.12]" style={{backgroundImage:"radial-gradient(#fff 1px,transparent 1px)",backgroundSize:"24px 24px"}}/>
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] bg-[length:24px_24px] opacity-[.12]"/>
         <div className={container+" grid min-h-[520px] items-center gap-8 py-14 lg:grid-cols-[1.05fr_.95fr] lg:gap-9 lg:py-12"}>
           <div className="max-w-[610px]">
             <span className="inline-flex items-center gap-2 text-[10px] font-extrabold tracking-[1.7px] text-[#d6eadc]"><i className="h-2 w-2 rounded-full bg-[#b8e1a9] ring-4 ring-white/10"/> PERHIMPUNAN PENSIUNAN PERTAMINA</span>
