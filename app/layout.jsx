@@ -1,1 +1,4 @@
-import "./globals.css";export const metadata={title:"HIMPANA Cabang Bandung | Peduli dan Melayani",description:"Website resmi HIMPANA Cabang Bandung — Perhimpunan Pensiunan Pertamina. Informasi anggota, organisasi, dan layanan data ulang."};export default function RootLayout({children}){return <html lang="id"><body>{children}</body></html>}
+import "./globals.css";import {DM_Sans,Manrope} from "next/font/google";
+const dm=DM_Sans({subsets:["latin"],variable:"--font-dm-sans"});const manrope=Manrope({subsets:["latin"],variable:"--font-manrope"});
+export const metadata={title:"HIMPANA Cabang Bandung | Peduli dan Melayani",description:"Website resmi HIMPANA Cabang Bandung — Perhimpunan Pensiunan Pertamina. Informasi anggota, organisasi, dan layanan data ulang."};
+export default function RootLayout({children}){return <html lang="id"><body className={dm.variable+" "+manrope.variable+" font-sans antialiased"}>{children}</body></html>}
