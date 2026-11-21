@@ -60,7 +60,7 @@ export default function RegisterPage() {
   }
 
   return <main className="register-page"><div className="register-wrap">
-    <div className="register-top"><Link href="/" className="public-brand"><span className="public-brand-mark">H</span><span><strong>HIMPANA</strong><small>Cabang Bandung</small></span></Link><Link href="/"><ArrowLeft size={14} style={{verticalAlign:"middle",marginRight:5}}/> Kembali ke Beranda</Link></div>
+    <div className="register-top"><Link href="/" className="public-brand"><img className="himpana-logo" src="https://himpana.com/logo-himpana.png" alt="Logo HIMPANA"/><span><strong>HIMPANA</strong><small>Cabang Bandung</small></span></Link><Link href="/"><ArrowLeft size={14} style={{verticalAlign:"middle",marginRight:5}}/> Kembali ke Beranda</Link></div>
     <form className="register-card" onSubmit={submit}>
       <span className="section-kicker">LAYANAN ANGGOTA</span>
       <h1>Permohonan Data Ulang</h1>
