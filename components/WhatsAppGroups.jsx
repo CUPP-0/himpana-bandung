@@ -1,76 +1,13 @@
 "use client";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Search, RefreshCw, CheckCircle2 } from "lucide-react";
-
-export default function WhatsAppGroups() {
-  const [groups, setGroups] = useState([]);
-  const [selectedId, setSelectedId] = useState("");
-  const [query, setQuery] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState("");
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
-
-  const load = useCallback(async () => {
-    setLoading(true); setError("");
-    try {
-      const [gr, sr] = await Promise.all([
-        fetch("/api/whatsapp/groups", { cache: "no-store" }),
-        fetch("/api/whatsapp/settings", { cache: "no-store" }),
-      ]);
-      const [gd, sd] = await Promise.all([gr.json(), sr.json()]);
-      if (!gr.ok) throw new Error(gd.error || "Gagal memuat grup WhatsApp.");
-      if (!sr.ok) throw new Error(sd.error || "Gagal memuat pengaturan grup.");
-      setGroups(gd.groups || []);
-      setSelectedId(sd.selectedGroup || "");
-    } catch (e) { setError(e.message || "Gagal memuat grup."); }
-    finally { setLoading(false); }
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
-
-  const visible = useMemo(() => {
-    const q = query.trim().toLocaleLowerCase("id");
-    const result = q ? groups.filter(g => g.name.toLocaleLowerCase("id").includes(q)) : groups;
-    return result.slice(0, 3);
-  }, [groups, query]);
-
-  async function choose(group) {
-    setSaving(group.id); setNotice(""); setError("");
-    try {
-      const r = await fetch("/api/whatsapp/settings", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ groupId: group.id }),
-      });
-      const d = await r.json();
-      if (!r.ok) throw new Error(d.error || "Gagal menyimpan grup.");
-      setSelectedId(group.id);
-      setNotice(`Grup "${group.name}" dipilih untuk notifikasi iuran.`);
-    } catch (e) { setError(e.message || "Gagal menyimpan grup."); }
-    finally { setSaving(""); }
-  }
-
-  const selected = groups.find(g => g.id === selectedId);
-  return <section className="wa-groups">
-    <div className="wa-groups-head">
-      <div><h3>Grup Notifikasi Iuran</h3><p>Pilih grup tujuan ucapan selamat pembayaran iuran.</p></div>
-      <button type="button" onClick={load} disabled={loading}><RefreshCw size={13} className={loading ? "wa-spin" : ""}/> Perbarui</button>
-    </div>
-    <div className="wa-selected-group">
-      <div className="wa-selected-info"><small>GRUP AKTIF UNTUK IURAN</small><strong>{selected?.name || (selectedId ? "Grup tersimpan" : "Belum ada grup dipilih")}</strong><span>{selectedId || "Pilih grup di bawah untuk mengaktifkan notifikasi."}</span></div>
-      {selectedId && <CheckCircle2 size={18} className="wa-selected-check"/>}
-    </div>
-    {notice && <div className="wa-feedback success">{notice}</div>}
-    {error && <div className="wa-feedback error">{error}</div>}
-    <div className="wa-group-search"><Search size={15}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Cari nama grup WhatsApp..."/></div>
-    {loading ? <div className="wa-groups-message">Mengambil daftar grup...</div> :
-      visible.length ? <div className="wa-groups-list">{visible.map(group => {
-        const active = selectedId === group.id;
-        return <div className={`wa-group-row ${active ? "active" : ""}`} key={group.id}>
-          <div className="wa-group-info"><strong>{group.name}</strong><code>{group.id}</code></div>
-          <button type="button" disabled={active || saving === group.id} onClick={() => choose(group)}>{saving === group.id ? "Menyimpan..." : active ? "✓ Digunakan" : "Gunakan grup"}</button>
-        </div>;
-      })}</div> : <div className="wa-groups-message">{groups.length ? "Grup tidak ditemukan." : "Belum ada grup. Pastikan WhatsApp terhubung."}</div>}
-    {!loading && groups.length > 3 && <p className="wa-groups-hint">{query ? "Hasil pencarian dibatasi 3 grup." : "Menampilkan 3 grup pertama. Cari grup lain melalui kolom pencarian."}</p>}
-  </section>;
-}
+import {useCallback,useEffect,useMemo,useState} from "react";import {Search,RefreshCw,CheckCircle2} from "lucide-react";
+export default function WhatsAppGroups(){const [groups,setGroups]=useState([]),[selectedId,setSelectedId]=useState(""),[query,setQuery]=useState(""),[loading,setLoading]=useState(true),[saving,setSaving]=useState(""),[error,setError]=useState(""),[notice,setNotice]=useState("");
+const load=useCallback(async()=>{setLoading(true);setError("");try{const [gr,sr]=await Promise.all([fetch("/api/whatsapp/groups",{cache:"no-store"}),fetch("/api/whatsapp/settings",{cache:"no-store"})]);const [gd,sd]=await Promise.all([gr.json(),sr.json()]);if(!gr.ok)throw Error(gd.error||"Gagal memuat grup WhatsApp.");if(!sr.ok)throw Error(sd.error||"Gagal memuat pengaturan grup.");setGroups(gd.groups||[]);setSelectedId(sd.selectedGroup||"")}catch(e){setError(e.message||"Gagal memuat grup.")}finally{setLoading(false)}},[]);
+useEffect(()=>{load()},[load]);const visible=useMemo(()=>{const q=query.trim().toLocaleLowerCase("id");return(q?groups.filter(g=>g.name.toLocaleLowerCase("id").includes(q)):groups).slice(0,3)},[groups,query]);
+async function choose(group){setSaving(group.id);setNotice("");setError("");try{const r=await fetch("/api/whatsapp/settings",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({groupId:group.id})}),d=await r.json();if(!r.ok)throw Error(d.error||"Gagal menyimpan grup.");setSelectedId(group.id);setNotice('Grup "'+group.name+'" dipilih untuk notifikasi iuran.')}catch(e){setError(e.message||"Gagal menyimpan grup.")}finally{setSaving("")}}
+const selected=groups.find(g=>g.id===selectedId);
+return <section className="mb-5 rounded-xl border border-[#e7ede9] bg-white p-4 sm:p-5"><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div><h3 className="text-sm font-bold">Grup Notifikasi Iuran</h3><p className="mt-1 text-[11px] text-[#718078]">Pilih grup tujuan ucapan selamat pembayaran iuran.</p></div><button type="button" onClick={load} disabled={loading} className="inline-flex items-center gap-2 rounded-lg border border-[#e7ede9] px-3 py-2 text-[11px] font-bold disabled:opacity-50"><RefreshCw size={13} className={loading?"animate-spin":""}/> Perbarui</button></div>
+<div className="flex items-center gap-3 rounded-lg border border-[#e3eee7] bg-[#f3f8f5] p-3"><div className="min-w-0 flex-1"><small className="mb-1 block text-[9px] font-extrabold tracking-wider text-[#688174]">GRUP AKTIF UNTUK IURAN</small><strong className="block break-all text-xs">{selected?.name||(selectedId?"Grup tersimpan":"Belum ada grup dipilih")}</strong><span className="mt-1 block break-all text-[10px] text-[#718078]">{selectedId||"Pilih grup di bawah untuk mengaktifkan notifikasi."}</span></div>{selectedId&&<CheckCircle2 size={18} className="shrink-0 text-[#16804e]"/>}</div>
+{notice&&<div className="mt-3 rounded-lg bg-[#eaf7ef] p-3 text-[11px] text-[#187548]">{notice}</div>}{error&&<div className="mt-3 rounded-lg bg-[#fff0ee] p-3 text-[11px] text-[#b8443b]">{error}</div>}
+<div className="my-3 flex h-10 items-center gap-2 rounded-lg border border-[#e7ede9] px-3 text-[#718078]"><Search size={15}/><input className="w-full bg-transparent text-xs outline-none" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Cari nama grup WhatsApp..."/></div>
+{loading?<p className="py-3 text-xs text-[#718078]">Mengambil daftar grup...</p>:visible.length?<div className="grid gap-2">{visible.map(group=>{const active=selectedId===group.id;return <div key={group.id} className={"flex min-w-0 flex-col justify-between gap-3 rounded-lg border p-3 sm:flex-row sm:items-center "+(active?"border-[#b9dcc7] bg-[#f8fcf9]":"border-[#e7ede9]")}><div className="min-w-0 flex-1"><strong className="block break-words text-xs">{group.name}</strong><code className="mt-1 block break-all text-[10px] text-[#718078]">{group.id}</code></div><button type="button" disabled={active||saving===group.id} onClick={()=>choose(group)} className={"rounded-lg border px-3 py-2 text-[11px] font-bold disabled:opacity-60 "+(active?"border-[#d6ecde] bg-[#e7f5ec] text-[#197447]":"border-[#e7ede9] bg-white")}>{saving===group.id?"Menyimpan...":active?"✓ Digunakan":"Gunakan grup"}</button></div>})}</div>:<p className="py-3 text-xs text-[#718078]">{groups.length?"Grup tidak ditemukan.":"Belum ada grup. Pastikan WhatsApp terhubung."}</p>}
+{!loading&&groups.length>3&&<p className="mt-3 text-[10px] text-[#718078]">{query?"Hasil pencarian dibatasi 3 grup.":"Menampilkan 3 grup pertama. Cari grup lain melalui kolom pencarian."}</p>}</section>}
