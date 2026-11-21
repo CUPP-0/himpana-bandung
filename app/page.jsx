@@ -92,7 +92,7 @@ export default async function PublicHome() {
 
       <section id="pengurus" className="bg-white py-14 sm:py-20"><div className={container}>
         <div className="mb-7 flex items-end justify-between gap-5"><div><span className="text-[10px] font-extrabold tracking-[1.7px] text-[#27784e]">ORGANISASI</span><h2 className="mb-2 mt-3 text-3xl font-extrabold text-[#173c2b]">Pengurus Cabang</h2><p className="text-xs leading-6 text-[#75857b]">Berkenalan dengan pengurus HIMPANA Cabang Bandung.</p></div><span className="hidden text-[9px] font-extrabold tracking-widest text-[#9aa79e] sm:block">02 / ORGANISASI</span></div>
-        <div className="flex items-center gap-4 rounded-xl border border-[#e8eee9] p-5"><span className="grid h-13 w-13 shrink-0 place-items-center rounded-full bg-[#eaf4ed] text-2xl font-extrabold text-[#176f49]">H</span><div><b className="text-[13px]">Pengurus HIMPANA Cabang Bandung</b><p className="mt-1.5 text-[11px] text-[#7d8b82]">Susunan nama dan jabatan pengurus akan ditampilkan setelah data resmi tersedia.</p></div></div>
+        <div className="flex items-center gap-4 rounded-xl border border-[#e8eee9] p-5"><span className="grid h-[52px] w-[52px] shrink-0 place-items-center rounded-full bg-[#eaf4ed] text-2xl font-extrabold text-[#176f49]">H</span><div><b className="text-[13px]">Pengurus HIMPANA Cabang Bandung</b><p className="mt-1.5 text-[11px] text-[#7d8b82]">Susunan nama dan jabatan pengurus akan ditampilkan setelah data resmi tersedia.</p></div></div>
       </div></section>
 
       <section id="kontak" className="bg-[#eaf3ec] py-12 sm:py-[60px]"><div className={container+" flex flex-col justify-between gap-8 lg:flex-row lg:items-center"}>
