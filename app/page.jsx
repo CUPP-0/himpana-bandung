@@ -4,21 +4,26 @@ import { Users, ClipboardCheck, ArrowUpRight, MapPin, Phone, Mail, ChevronRight 
 
 export const dynamic = "force-dynamic";
 
-async function getPublicStats() {
+async function getPublicData() {
+  let stats = { total: 0, dataUlang: 0 };
+  let deaths = [];
   try {
-    const [[stats]] = await pool.query(`
+    const [[row]] = await pool.query(`
       SELECT COUNT(*) AS total,
       COALESCE(SUM(status_data_ulang NOT IN ('BLMDU','BWDU')),0) AS data_ulang
       FROM members
     `);
-    return { total: Number(stats.total || 0), dataUlang: Number(stats.data_ulang || 0) };
-  } catch {
-    return { total: 0, dataUlang: 0 };
-  }
+    stats = { total: Number(row.total || 0), dataUlang: Number(row.data_ulang || 0) };
+  } catch {}
+  try {
+    const [rows] = await pool.query("SELECT id,nama,nomor_pensiun,tanggal_meninggal,keterangan FROM member_deaths ORDER BY tanggal_meninggal DESC LIMIT 100");
+    deaths = rows;
+  } catch {}
+  return { stats, deaths };
 }
 
 export default async function PublicHome() {
-  const stats = await getPublicStats();
+  const { stats, deaths } = await getPublicData();
   return (
     <main className="public-site">
       <header className="public-header">
@@ -70,7 +75,7 @@ export default async function PublicHome() {
       <section className="public-section mutation-section" id="mutasi">
         <div className="public-container">
           <div className="section-heading"><div><span className="section-kicker">INFORMASI ANGGOTA</span><h2>Mutasi Anggota</h2><p>Informasi perubahan data dan kabar anggota HIMPANA Cabang Bandung.</p></div><span className="section-index">01 / INFORMASI</span></div>
-          <div className="mutation-empty"><span className="mutation-symbol">✳</span><div><h3>Informasi mutasi anggota</h3><p>Informasi anggota yang telah meninggal dunia akan ditampilkan pada bagian ini setelah data mutasi tersedia.</p></div><span className="coming-label">Pembaruan data</span></div>
+          {deaths.length ? <div className="table-wrap public-death-table"><table><thead><tr><th>Nama Anggota</th><th>Nomor Pensiun</th><th>Tanggal Meninggal</th><th>Keterangan</th></tr></thead><tbody>{deaths.map(x=><tr key={x.id}><td><b>{x.nama}</b></td><td>{x.nomor_pensiun||"-"}</td><td>{new Date(x.tanggal_meninggal).toLocaleDateString("id-ID",{day:"2-digit",month:"long",year:"numeric"})}</td><td>{x.keterangan||"-"}</td></tr>)}</tbody></table></div> : <div className="mutation-empty"><span className="mutation-symbol">✳</span><div><h3>Belum ada informasi mutasi</h3><p>Data anggota yang telah meninggal dunia akan ditampilkan di bagian ini setelah dicatat oleh pengurus.</p></div><span className="coming-label">Data mutasi</span></div>}
         </div>
       </section>
 
