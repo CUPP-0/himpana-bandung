@@ -1,1 +1,1 @@
-import "./globals.css";export const metadata={title:"HIMPANA Bandung",description:"Sistem Informasi Manajemen HIMPANA Cabang Bandung"};export default function RootLayout({children}){return <html lang="id"><body>{children}</body></html>}
+import "./globals.css";export const metadata={title:"HIMPANA Cabang Bandung | Peduli dan Melayani",description:"Website resmi HIMPANA Cabang Bandung — Perhimpunan Pensiunan Pertamina. Informasi anggota, organisasi, dan layanan data ulang."};export default function RootLayout({children}){return <html lang="id"><body>{children}</body></html>}
