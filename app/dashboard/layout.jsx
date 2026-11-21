@@ -1,24 +1,2 @@
-import Sidebar from "@/components/Sidebar";
-import WhatsAppConnection from "@/components/WhatsAppConnection";
-import { getSession } from "@/lib/auth";
-import { redirect } from "next/navigation";
-
-export default async function Layout({ children }) {
-  if (!await getSession()) redirect("/login");
-
-  return (
-    <div className="shell">
-      <Sidebar />
-      <main className="main">
-        <header className="topbar">
-          <b>HIMPANA Bandung</b>
-          <span>Administrator</span>
-        </header>
-        <section className="content">
-          <WhatsAppConnection />
-          {children}
-        </section>
-      </main>
-    </div>
-  );
-}
+import Sidebar from "@/components/Sidebar";import WhatsAppConnection from "@/components/WhatsAppConnection";import {getSession} from "@/lib/auth";import {redirect} from "next/navigation";
+export default async function Layout({children}){if(!await getSession())redirect("/login");return <div className="min-h-screen bg-[#f5f8f6] text-[#17251f]"><Sidebar/><main className="min-w-0 md:ml-[250px]"><header className="sticky top-0 z-10 flex h-[60px] items-center justify-between border-b border-[#e7ede9] bg-white px-4 text-xs sm:px-8 md:h-[70px]"><b>HIMPANA Bandung</b><span className="text-[#718078]">Administrator</span></header><section className="mx-auto max-w-[1500px] space-y-5 px-3 py-5 sm:px-6 sm:py-7"><WhatsAppConnection/>{children}</section></main></div>}
