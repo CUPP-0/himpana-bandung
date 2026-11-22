@@ -13,8 +13,8 @@ export async function POST(req) {
     for (const key of required) {
       if (!String(d[key] || "").trim()) return NextResponse.json({error:"Semua kolom bertanda wajib harus diisi."},{status:400});
     }
-    if (!/^\\d{5}$/.test(String(d.kode_pos))) return NextResponse.json({error:"Kode pos harus terdiri dari 5 angka."},{status:400});
-    if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(String(d.tanggal_lahir))) return NextResponse.json({error:"Tanggal lahir tidak valid."},{status:400});
+    if (!/^\d{5}$/.test(String(d.kode_pos))) return NextResponse.json({error:"Kode pos harus terdiri dari 5 angka."},{status:400});
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(d.tanggal_lahir))) return NextResponse.json({error:"Tanggal lahir tidak valid."},{status:400});
 
     const nomorKta = String(d.nomor_kta || "").trim() || null;
     await pool.query(`
