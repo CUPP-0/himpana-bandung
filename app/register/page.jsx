@@ -5,13 +5,12 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
 
 const API = "https://www.emsifa.com/api-wilayah-indonesia/api";
-const empty = { nama_lengkap:"", nomor_pensiun:"", nomor_kta:"", no_wa:"", tanggal_lahir:"", alamat_lengkap:"", kode_pos:"", provinsi_id:"", provinsi:"", kabupaten_id:"", kabupaten:"", kecamatan_id:"", kecamatan:"", kelurahan_id:"", kelurahan:"" };
+const empty = { nama_lengkap:"", nomor_pensiun:"", nomor_kta:"", no_wa:"", tanggal_lahir:"", alamat_lengkap:"", kode_pos:"", provinsi_id:"32", provinsi:"Jawa Barat", kabupaten_id:"", kabupaten:"", kecamatan_id:"", kecamatan:"", kelurahan_id:"", kelurahan:"" };
 const inputClass = "min-h-[44px] w-full rounded-lg border border-[#dfe8e1] bg-white px-3 py-2.5 text-xs text-[#263d2e] outline-none transition placeholder:text-[#a0aaa3] focus:border-[#6ca783] focus:ring-4 focus:ring-[#176f49]/10 disabled:cursor-not-allowed disabled:bg-[#f5f7f5]";
 const labelClass = "mb-2 block text-[11px] font-bold text-[#53665a]";
 
 export default function RegisterPage() {
   const [form,setForm] = useState(empty);
-  const [provinces,setProvinces] = useState([]);
   const [regencies,setRegencies] = useState([]);
   const [districts,setDistricts] = useState([]);
   const [villages,setVillages] = useState([]);
@@ -20,19 +19,13 @@ export default function RegisterPage() {
   const [error,setError] = useState("");
   const [success,setSuccess] = useState(false);
 
-  useEffect(()=>{ fetch(API+"/provinces.json").then(r=>r.json()).then(setProvinces).catch(()=>setError("Daftar provinsi gagal dimuat. Periksa koneksi internet.")); },[]);
+  useEffect(()=>{ loadRegion(API+"/regencies/32.json").then(data=>{ if(data) setRegencies(data.filter(x=>["3204","3217","3273","3277"].includes(x.id))); }); },[]);
   const change = (key,value) => setForm(old=>({...old,[key]:value}));
   async function loadRegion(url) {
     setRegionLoading(true); setError("");
     try { const data=await fetch(url).then(r=>{if(!r.ok)throw Error();return r.json()}); return data; }
     catch { setError("Daftar wilayah gagal dimuat. Silakan coba lagi."); return null; }
     finally { setRegionLoading(false); }
-  }
-  async function provinceChange(id) {
-    const p=provinces.find(x=>x.id===id);
-    setForm(old=>({...old,provinsi_id:id,provinsi:p?.name||"",kabupaten_id:"",kabupaten:"",kecamatan_id:"",kecamatan:"",kelurahan_id:"",kelurahan:""}));
-    setRegencies([]);setDistricts([]);setVillages([]);
-    if(id) setRegencies(await loadRegion(API+"/regencies/"+id+".json")||[]);
   }
   async function kabupatenChange(id) {
     const item=regencies.find(x=>x.id===id);
@@ -84,8 +77,7 @@ export default function RegisterPage() {
           <h3 className="mb-4 mt-7 border-b border-[#edf1ee] pb-3 text-[13px] font-bold text-[#276d46]">Alamat Lengkap</h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2"><label className={labelClass}>Alamat / Jalan / Nomor Rumah *</label><textarea className={inputClass+" min-h-[85px] resize-y"} required value={form.alamat_lengkap} onChange={e=>change("alamat_lengkap",e.target.value)} placeholder="Nama jalan, nomor rumah, RT/RW, blok, dan detail lainnya"/></div>
-            <div><label className={labelClass}>Provinsi *</label><select className={inputClass} required value={form.provinsi_id} onChange={e=>provinceChange(e.target.value)}><option value="">Pilih provinsi</option>{provinces.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
-            <div><label className={labelClass}>Kabupaten / Kota *</label><select className={inputClass} required disabled={!form.provinsi_id||regionLoading} value={form.kabupaten_id} onChange={e=>kabupatenChange(e.target.value)}><option value="">Pilih kabupaten/kota</option>{regencies.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
+            <div><label className={labelClass}>Kabupaten / Kota *</label><select className={inputClass} required disabled={regionLoading} value={form.kabupaten_id} onChange={e=>kabupatenChange(e.target.value)}><option value="">Pilih kabupaten/kota</option>{regencies.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
             <div><label className={labelClass}>Kecamatan *</label><select className={inputClass} required disabled={!form.kabupaten_id||regionLoading} value={form.kecamatan_id} onChange={e=>kecamatanChange(e.target.value)}><option value="">Pilih kecamatan</option>{districts.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
             <div><label className={labelClass}>Kelurahan / Desa *</label><select className={inputClass} required disabled={!form.kecamatan_id||regionLoading} value={form.kelurahan_id} onChange={e=>kelurahanChange(e.target.value)}><option value="">Pilih kelurahan/desa</option>{villages.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
             <div><label className={labelClass}>Kode Pos *</label><input className={inputClass} required inputMode="numeric" maxLength={5} value={form.kode_pos} onChange={e=>change("kode_pos",e.target.value.replace(/\D/g,""))} placeholder="5 digit kode pos"/></div>
