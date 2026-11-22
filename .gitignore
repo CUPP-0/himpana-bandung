@@ -1,0 +1,15 @@
+# Dependencies
+/node_modules
+
+# Next.js
+/.next
+/out
+
+# WhatsApp Web
+/.wwebjs_auth
+/.wwebjs_cache
+
+# Environment variables
+.env
+.env.*
+!.env.example
