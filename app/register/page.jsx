@@ -65,9 +65,9 @@ export default function RegisterPage() {
         <div className="mb-14"><h2 className="text-5xl font-black tracking-tight xl:text-6xl">TUTORIAL</h2><div className="mt-3 h-1 w-64 bg-white"/><p className="mt-3 text-2xl italic tracking-[.28em] text-blue-100">Data Ulang</p></div>
         <div className="space-y-10">
           {[
-            ["1","Masukan Nama lengkap","Sesuai dengan kartu anggota atau identitas pensiunan"],
-            ["2","Masukan Nomor Pensiun","Nomor pensiun yang tercantum pada data Anda"],
-            ["3","Lengkapi data diri","Isi nomor kontak dan alamat dengan benar"],
+            ["1","Masukan Identitas Lengkap","Sesuai dengan kartu anggota atau identitas pensiunan"],
+            ["2","Masukan Alamat lengkap","Masukkan alamat lengkap tempat tinggal Anda saat ini."],
+            ["3", "Lacak Data Ulang", "Jika Nomor Pensiun Anda sudah terdaftar, periksa status dan perkembangan proses data ulang melalui fitur Tracking."],
           ].map(([number,title,desc])=><div key={number} className="flex items-center gap-4 rounded-xl bg-white px-5 py-4 text-slate-900 shadow-xl"><span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-blue-800 text-2xl font-extrabold text-white">{number}</span><span><b className="block text-sm">{title}</b><small className="mt-1 block text-xs leading-relaxed text-slate-600">{desc}</small></span></div>)}
         </div>
         <div className="mt-auto pt-12"><div className="inline-flex items-center gap-3 rounded-full bg-white px-8 py-4 font-extrabold text-slate-900 shadow-xl"><ClipboardList size={21} className="text-blue-800"/> Daftar Data Ulang</div><p className="mt-8 text-xs leading-6 text-blue-100">HIMPANA · CABANG BANDUNG<br/>Peduli dan Melayani</p></div>
