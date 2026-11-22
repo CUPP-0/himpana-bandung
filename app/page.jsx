@@ -93,9 +93,15 @@ export default async function PublicHome() {
               >
                 Ajukan Data Ulang <ArrowUpRight size={17} />
               </Link>
+              <Link
+                href="/tracking"
+                className="inline-flex items-center gap-2 rounded-lg border border-white px-5 py-3.5 text-xs font-bold text-white transition hover:bg-white/10"
+              >
+                Lacak Data Ulang <ChevronRight size={17} />
+              </Link>
               <a
                 href="#tentang"
-                className="inline-flex items-center gap-2 text-xs font-bold text-white border border-white px-5 py-3.5 rounded-lg hover:bg-white/10 transition"
+                className="inline-flex items-center gap-2 text-xs font-bold text-white border border-white/70 px-5 py-3.5 rounded-lg hover:bg-white/10 transition"
               >
                 Kenali HIMPANA <ChevronRight size={17} />
               </a>
