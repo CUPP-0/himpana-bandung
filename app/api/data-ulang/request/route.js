@@ -4,7 +4,10 @@ import pool from "@/lib/db";
 export async function POST(req) {
   try {
     const d = await req.json();
-    const required = ["nama_lengkap","nomor_pensiun","no_wa","tanggal_lahir","alamat_lengkap","kode_pos","provinsi","kabupaten","kecamatan","kelurahan"];
+    const areaMap = {"3204":"Kabupaten Bandung","3217":"Kabupaten Bandung Barat","3273":"Kota Bandung","3277":"Kota Cimahi"};
+    const kabupaten = areaMap[String(d.kabupaten_id || "")];
+    if (!kabupaten) return NextResponse.json({error:"Wilayah kabupaten/kota hanya tersedia untuk area Bandung Raya."},{status:400});
+    const required = ["nama_lengkap","nomor_pensiun","no_wa","tanggal_lahir","alamat_lengkap","kode_pos","kecamatan","kelurahan"];
     for (const key of required) {
       if (!String(d[key] || "").trim()) return NextResponse.json({error:"Semua kolom bertanda wajib harus diisi."},{status:400});
     }
@@ -41,7 +44,7 @@ export async function POST(req) {
     `,[
       String(d.nama_lengkap).trim(),String(d.nomor_pensiun).trim(),String(d.nomor_kta||"").trim()||null,
       String(d.no_wa).trim(),d.tanggal_lahir,String(d.alamat_lengkap).trim(),String(d.kode_pos),
-      d.provinsi_id||null,d.provinsi,d.kabupaten_id||null,d.kabupaten,d.kecamatan_id||null,d.kecamatan,d.kelurahan_id||null,d.kelurahan
+      "32","Jawa Barat",String(d.kabupaten_id),kabupaten,d.kecamatan_id||null,d.kecamatan,d.kelurahan_id||null,d.kelurahan
     ]);
     return NextResponse.json({success:true,id:result.insertId,message:"Permohonan berhasil dikirim dan menunggu verifikasi."},{status:201});
   } catch (error) {
