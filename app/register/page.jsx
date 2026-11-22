@@ -20,6 +20,7 @@ export default function RegisterPage() {
   const [success,setSuccess] = useState(false);
   const [tourStep,setTourStep] = useState(-1);
   const [tourRect,setTourRect] = useState(null);
+  const [duplicateFound,setDuplicateFound] = useState(false);
   const tourSteps = [
     { id:"tour-identity", title:"Isi Identitas Anggota", description:"Lengkapi nama, nomor pensiun, nomor KTA (jika ada), nomor WhatsApp, dan tanggal lahir." },
     { id:"tour-address", title:"Isi Alamat Lengkap", description:"Masukkan alamat domisili saat ini, lalu pilih kabupaten/kota, kecamatan, kelurahan, dan kode pos." },
@@ -91,7 +92,10 @@ export default function RegisterPage() {
     try {
       const response=await fetch("/api/data-ulang/request",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(form)});
       const data=await response.json();
-      if(!response.ok) throw Error(data.error||"Pendaftaran gagal dikirim.");
+      if(!response.ok) {
+        if (response.status === 409) setDuplicateFound(true);
+        throw Error(data.error||"Pendaftaran gagal dikirim.");
+      }
       setSuccess(true);window.scrollTo({top:0,behavior:"smooth"});
     } catch(e) {setError(e.message||"Terjadi kesalahan.");}
     finally {setLoading(false);}
@@ -121,7 +125,7 @@ export default function RegisterPage() {
           <Link href="/" className="text-xs font-semibold text-blue-800 hover:text-blue-950"><ArrowLeft className="mr-1 inline" size={14}/> Kembali</Link>
         </div>
         <div className="mb-6"><span className="text-[10px] font-extrabold tracking-[1.8px] text-blue-800">LAYANAN ANGGOTA</span><h1 className="mt-2 text-2xl font-extrabold text-slate-900 sm:text-3xl">Daftar Data Ulang</h1><p className="mt-2 text-xs leading-6 text-slate-500">Lengkapi formulir berikut untuk memperbarui data keanggotaan HIMPANA Cabang Bandung.</p></div>
-        {error&&<div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">{error}</div>}
+        {error&&<div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700"><p>{error}</p>{duplicateFound&&<div className="mt-3 border-t border-red-200 pt-3"><p className="font-semibold">Nomor tersebut sudah terdaftar. Silakan cari status data ulang melalui fitur Search.</p><Link id="duplicate-search-link" href="/tracking" className="mt-2 inline-flex items-center gap-2 rounded-lg bg-blue-800 px-4 py-2.5 text-xs font-bold text-white hover:bg-blue-900">Buka Search / Lacak Data Ulang <Search size={14}/></Link><button type="button" onClick={()=>{setTourStep(4);setTourRect(null);}} className="ml-3 mt-2 inline-flex items-center gap-1 font-bold text-blue-800 underline">Lihat tutorial Search</button></div>}</div>}
         {success ? <div className="rounded-xl border border-blue-100 bg-blue-50 p-6 text-sm leading-7 text-blue-950"><CheckCircle2 size={32} className="text-blue-800"/><h3 className="mt-3 text-lg font-extrabold">Pendaftaran berhasil!</h3>Data Anda sudah tersimpan di database anggota dengan status <b>BLMDU — Belum Data Ulang</b>. Gunakan nomor pensiun atau KTA dan nama lengkap untuk memantau prosesnya.<Link href="/tracking" className="mt-5 inline-flex items-center gap-2 rounded-lg bg-blue-800 px-5 py-3 text-xs font-bold text-white hover:bg-blue-900">Lacak Data Ulang <Search size={15}/></Link></div> : <form onSubmit={submit} className="space-y-5">
           <div id="tour-identity"><h2 className="mb-3 border-b border-slate-200 pb-2 text-sm font-extrabold text-[#102d55]">Identitas Anggota</h2><div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div><label className={labelClass}>Nama Lengkap *</label><input className={inputClass} required value={form.nama_lengkap} onChange={e=>change("nama_lengkap",e.target.value)} placeholder="Nama sesuai identitas"/></div>
@@ -143,7 +147,8 @@ export default function RegisterPage() {
         </form>}
       </div>
     </section>
-    {tourStep >= 0 && tourRect && (
+    {tourStep === 4 && <div className="fixed inset-0 z-[110] flex items-end justify-center bg-slate-950/65 p-4 sm:items-center"><div className="w-full max-w-md rounded-2xl border border-blue-100 bg-white p-5 text-slate-900 shadow-2xl"><div className="flex items-center justify-between"><span className="text-[10px] font-extrabold uppercase tracking-[1.5px] text-blue-800">Panduan Search</span><button type="button" onClick={()=>setTourStep(-1)} className="text-xs font-semibold text-slate-500">Tutup</button></div><div className="mt-3 flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-800"><Search size={22}/></div><h3 className="mt-3 text-lg font-extrabold">Cari status data ulang Anda</h3><p className="mt-2 text-sm leading-6 text-slate-600">Klik tombol di bawah, lalu masukkan nomor pensiun atau nomor KTA yang sudah terdaftar. Sistem akan menampilkan status dan riwayat proses data ulang Anda.</p><Link href="/tracking" className="mt-5 flex items-center justify-center gap-2 rounded-lg bg-blue-800 px-5 py-3 text-xs font-bold text-white hover:bg-blue-900">Buka Fitur Search <Search size={15}/></Link></div></div>}
+    {tourStep >= 0 && tourStep < tourSteps.length && tourRect && (
       <div className="fixed inset-0 z-[100]">
         <div className="absolute inset-0 bg-slate-950/65"/>
         <div
