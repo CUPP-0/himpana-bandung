@@ -18,6 +18,46 @@ export default function RegisterPage() {
   const [regionLoading,setRegionLoading] = useState(false);
   const [error,setError] = useState("");
   const [success,setSuccess] = useState(false);
+  const [tourStep,setTourStep] = useState(-1);
+  const [tourRect,setTourRect] = useState(null);
+  const tourSteps = [
+    { id:"tour-identity", title:"Isi Identitas Anggota", description:"Lengkapi nama, nomor pensiun, nomor KTA (jika ada), nomor WhatsApp, dan tanggal lahir." },
+    { id:"tour-address", title:"Isi Alamat Lengkap", description:"Masukkan alamat domisili saat ini, lalu pilih kabupaten/kota, kecamatan, kelurahan, dan kode pos." },
+    { id:"tour-submit", title:"Kirim Pendaftaran", description:"Jika seluruh data sudah benar dan lengkap, tekan tombol ini untuk mengirim pendaftaran data ulang." },
+    { id:"tour-tracking", title:"Lacak Data Ulang", description:"Jika nomor pensiun atau KTA sudah terdaftar, gunakan fitur ini untuk melihat status proses data ulang." },
+  ];
+
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem("himpana-register-tour-completed")) setTourStep(0);
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    if (tourStep < 0 || tourStep >= tourSteps.length) return;
+    const updateRect = () => {
+      const target = document.getElementById(tourSteps[tourStep].id);
+      if (!target) return;
+      target.scrollIntoView({ behavior:"smooth", block:"center" });
+      requestAnimationFrame(() => {
+        const rect = target.getBoundingClientRect();
+        setTourRect({ top:rect.top-8, left:rect.left-8, width:rect.width+16, height:rect.height+16 });
+      });
+    };
+    updateRect();
+    window.addEventListener("resize", updateRect);
+    window.addEventListener("scroll", updateRect, true);
+    return () => { window.removeEventListener("resize", updateRect); window.removeEventListener("scroll", updateRect, true); };
+  }, [tourStep]);
+
+  function finishTour() {
+    try { localStorage.setItem("himpana-register-tour-completed", "1"); } catch {}
+    setTourStep(-1); setTourRect(null);
+  }
+  function nextTour() {
+    if (tourStep >= tourSteps.length-1) finishTour();
+    else setTourStep(step=>step+1);
+  }
   const change = (key,value) => setForm(old=>({...old,[key]:value}));
 
   useEffect(() => {
@@ -83,14 +123,14 @@ export default function RegisterPage() {
         <div className="mb-6"><span className="text-[10px] font-extrabold tracking-[1.8px] text-blue-800">LAYANAN ANGGOTA</span><h1 className="mt-2 text-2xl font-extrabold text-slate-900 sm:text-3xl">Daftar Data Ulang</h1><p className="mt-2 text-xs leading-6 text-slate-500">Lengkapi formulir berikut untuk memperbarui data keanggotaan HIMPANA Cabang Bandung.</p></div>
         {error&&<div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">{error}</div>}
         {success ? <div className="rounded-xl border border-blue-100 bg-blue-50 p-6 text-sm leading-7 text-blue-950"><CheckCircle2 size={32} className="text-blue-800"/><h3 className="mt-3 text-lg font-extrabold">Pendaftaran berhasil!</h3>Data Anda sudah tersimpan di database anggota dengan status <b>BLMDU — Belum Data Ulang</b>. Gunakan nomor pensiun atau KTA dan nama lengkap untuk memantau prosesnya.<Link href="/tracking" className="mt-5 inline-flex items-center gap-2 rounded-lg bg-blue-800 px-5 py-3 text-xs font-bold text-white hover:bg-blue-900">Lacak Data Ulang <Search size={15}/></Link></div> : <form onSubmit={submit} className="space-y-5">
-          <div><h2 className="mb-3 border-b border-slate-200 pb-2 text-sm font-extrabold text-[#102d55]">Identitas Pensiunan</h2><div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div id="tour-identity"><h2 className="mb-3 border-b border-slate-200 pb-2 text-sm font-extrabold text-[#102d55]">Identitas Anggota</h2><div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div><label className={labelClass}>Nama Lengkap *</label><input className={inputClass} required value={form.nama_lengkap} onChange={e=>change("nama_lengkap",e.target.value)} placeholder="Nama sesuai identitas"/></div>
             <div><label className={labelClass}>Nomor Pensiun *</label><input className={inputClass} required value={form.nomor_pensiun} onChange={e=>change("nomor_pensiun",e.target.value)} placeholder="Masukkan nomor pensiun"/></div>
             <div><label className={labelClass}>Nomor KTA</label><input className={inputClass} value={form.nomor_kta} onChange={e=>change("nomor_kta",e.target.value)} placeholder="Kosongkan jika belum ada"/><p className="mt-1 text-[10px] text-slate-500">Opsional jika belum memiliki KTA.</p></div>
             <div><label className={labelClass}>Nomor WhatsApp *</label><input className={inputClass} required type="tel" value={form.no_wa} onChange={e=>change("no_wa",e.target.value)} placeholder="Contoh: 081234567890"/></div>
             <div><label className={labelClass}>Tanggal Lahir *</label><input className={inputClass} required type="date" value={form.tanggal_lahir} onChange={e=>change("tanggal_lahir",e.target.value)}/></div>
           </div></div>
-          <div><h2 className="mb-3 border-b border-slate-200 pb-2 text-sm font-extrabold text-[#102d55]">Alamat Lengkap</h2><div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div id="tour-address"><h2 className="mb-3 border-b border-slate-200 pb-2 text-sm font-extrabold text-[#102d55]">Alamat Lengkap</h2><div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="sm:col-span-2"><label className={labelClass}>Alamat / Jalan / Nomor Rumah *</label><textarea className={inputClass+" min-h-[76px] resize-y"} required value={form.alamat_lengkap} onChange={e=>change("alamat_lengkap",e.target.value)} placeholder="Nama jalan, nomor rumah, RT/RW, dan detail lainnya"/></div>
             <div><label className={labelClass}>Kabupaten / Kota *</label><select className={inputClass} required disabled={regionLoading} value={form.kabupaten_id} onChange={e=>kabupatenChange(e.target.value)}><option value="">Pilih kabupaten/kota</option>{regencies.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
             <div><label className={labelClass}>Kecamatan *</label><select className={inputClass} required disabled={!form.kabupaten_id||regionLoading} value={form.kecamatan_id} onChange={e=>kecamatanChange(e.target.value)}><option value="">Pilih kecamatan</option>{districts.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
@@ -98,10 +138,37 @@ export default function RegisterPage() {
             <div><label className={labelClass}>Kode Pos *</label><input className={inputClass} required inputMode="numeric" maxLength={5} value={form.kode_pos} onChange={e=>change("kode_pos",e.target.value.replace(/\D/g,""))} placeholder="5 digit kode pos"/></div>
           </div></div>
           <p className="text-[10px] leading-5 text-slate-500">Dengan mengirim formulir ini, Anda menyatakan bahwa informasi yang diberikan benar dan dapat digunakan untuk administrasi serta verifikasi keanggotaan.</p>
-          <button className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-blue-800 px-5 py-3 text-xs font-extrabold text-white transition hover:bg-blue-900 disabled:cursor-wait disabled:opacity-60" disabled={loading}>{loading?"Menyimpan data...":"Kirim Pendaftaran"} <ArrowRight size={15}/></button>
-          <div className="text-center text-xs text-slate-500">Sudah mendaftar? <Link href="/tracking" className="font-bold text-blue-800 hover:underline">Lacak proses data ulang</Link></div>
+          <button id="tour-submit" className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-blue-800 px-5 py-3 text-xs font-extrabold text-white transition hover:bg-blue-900 disabled:cursor-wait disabled:opacity-60" disabled={loading}>{loading?"Menyimpan data...":"Kirim Pendaftaran"} <ArrowRight size={15}/></button>
+          <div id="tour-tracking" className="rounded-lg py-2 text-center text-xs text-slate-500">Sudah mendaftar? <Link href="/tracking" className="font-bold text-blue-800 hover:underline">Lacak proses data ulang</Link></div>
         </form>}
       </div>
     </section>
+    {tourStep >= 0 && tourRect && (
+      <div className="fixed inset-0 z-[100]">
+        <div className="absolute inset-0 bg-slate-950/65"/>
+        <div
+          className="pointer-events-none fixed rounded-xl border-[3px] border-blue-400 shadow-[0_0_0_9999px_rgba(2,12,27,0.68)] transition-all duration-300"
+          style={{ top:tourRect.top, left:tourRect.left, width:tourRect.width, height:tourRect.height }}
+        />
+        <div className="absolute inset-x-4 bottom-5 mx-auto w-full max-w-md rounded-2xl border border-blue-100 bg-white p-5 text-slate-900 shadow-2xl sm:bottom-8">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-extrabold uppercase tracking-[1.5px] text-blue-800">Panduan Pendaftaran</span>
+            <span className="text-xs font-bold text-slate-400">{tourStep+1} dari {tourSteps.length}</span>
+          </div>
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
+            <div className="h-full rounded-full bg-blue-800 transition-all" style={{ width:((tourStep+1)/tourSteps.length*100)+"%" }}/>
+          </div>
+          <h3 className="mt-4 text-lg font-extrabold">{tourSteps[tourStep].title}</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">{tourSteps[tourStep].description}</p>
+          <div className="mt-5 flex items-center justify-between gap-3">
+            <button type="button" onClick={finishTour} className="text-xs font-semibold text-slate-500 hover:text-slate-800">Lewati Tutorial</button>
+            <div className="flex items-center gap-2">
+              {tourStep>0 && <button type="button" onClick={()=>setTourStep(step=>step-1)} className="rounded-lg border border-slate-300 px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50">Kembali</button>}
+              <button type="button" onClick={nextTour} className="rounded-lg bg-blue-800 px-5 py-2.5 text-xs font-bold text-white hover:bg-blue-900">{tourStep===tourSteps.length-1?"Selesai":"Selanjutnya"}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
   </main>;
 }
