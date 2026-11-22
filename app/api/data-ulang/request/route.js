@@ -2,116 +2,92 @@ import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 
 export async function POST(req) {
-  let connection;
   try {
     const d = await req.json();
-    const areaMap = {"3204":"Kabupaten Bandung","3217":"Kabupaten Bandung Barat","3273":"Kota Bandung","3277":"Kota Cimahi"};
-    const kabupaten = areaMap[String(d.kabupaten_id || "")];
-    if (!kabupaten) return NextResponse.json({error:"Wilayah kabupaten/kota hanya tersedia untuk area Bandung Raya."},{status:400});
+    const areaMap = {
+      "3204": "Kabupaten Bandung",
+      "3217": "Kabupaten Bandung Barat",
+      "3273": "Kota Bandung",
+      "3277": "Kota Cimahi",
+    };
+    const kabupatenId = String(d.kabupaten_id || "");
+    const kabupaten = areaMap[kabupatenId];
 
-    const required = ["nama_lengkap","nomor_pensiun","no_wa","tanggal_lahir","alamat_lengkap","kode_pos","kecamatan","kelurahan"];
+    if (!kabupaten) {
+      return NextResponse.json({ error: "Wilayah kabupaten/kota hanya tersedia untuk area Bandung Raya." }, { status: 400 });
+    }
+
+    const required = ["nama_lengkap", "nomor_pensiun", "no_wa", "tanggal_lahir", "alamat_lengkap", "kode_pos", "kecamatan", "kelurahan"];
     for (const key of required) {
-      if (!String(d[key] || "").trim()) return NextResponse.json({error:"Semua kolom bertanda wajib harus diisi."},{status:400});
-    }
-    if (!/^\d{5}$/.test(String(d.kode_pos))) return NextResponse.json({error:"Kode pos harus terdiri dari 5 angka."},{status:400});
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(d.tanggal_lahir))) return NextResponse.json({error:"Tanggal lahir tidak valid."},{status:400});
-
-    const nomorKta = String(d.nomor_kta || "").trim() || null;
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS data_ulang_requests (
-        id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        nama_lengkap VARCHAR(180) NOT NULL,
-        nomor_pensiun VARCHAR(80) NOT NULL,
-        nomor_kta VARCHAR(80) NULL,
-        no_wa VARCHAR(30) NOT NULL,
-        tanggal_lahir DATE NOT NULL,
-        alamat_lengkap TEXT NOT NULL,
-        kode_pos VARCHAR(10) NOT NULL,
-        provinsi_id VARCHAR(20), provinsi VARCHAR(100) NOT NULL,
-        kabupaten_id VARCHAR(20), kabupaten VARCHAR(120) NOT NULL,
-        kecamatan_id VARCHAR(20), kecamatan VARCHAR(120) NOT NULL,
-        kelurahan_id VARCHAR(20), kelurahan VARCHAR(120) NOT NULL,
-        status ENUM('Menunggu','Disetujui','Ditolak') NOT NULL DEFAULT 'Menunggu',
-        catatan_admin TEXT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        INDEX idx_request_nomor_pensiun(nomor_pensiun),
-        INDEX idx_request_status(status)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `);
-
-    connection = await pool.getConnection();
-    await connection.beginTransaction();
-
-    const [existingRequest] = await connection.execute(
-      "SELECT id FROM data_ulang_requests WHERE nomor_pensiun=? AND status='Menunggu' LIMIT 1",
-      [String(d.nomor_pensiun).trim()]
-    );
-    if (existingRequest.length) {
-      await connection.rollback();
-      return NextResponse.json({error:"Permohonan dengan nomor pensiun tersebut masih menunggu verifikasi."},{status:409});
-    }
-
-    if (nomorKta) {
-      const [existingKta] = await connection.execute(
-        "SELECT id FROM members WHERE nomor_anggota=? LIMIT 1",
-        [nomorKta]
-      );
-      if (existingKta.length) {
-        await connection.rollback();
-        return NextResponse.json({error:"Nomor KTA tersebut sudah terdaftar sebagai nomor anggota."},{status:409});
+      if (!String(d[key] || "").trim()) {
+        return NextResponse.json({ error: "Semua kolom bertanda wajib harus diisi." }, { status: 400 });
       }
     }
 
-    const [memberResult] = await connection.execute(
-      "INSERT INTO members (nomor_anggota,nama,no_wa,email,status_kta,status_data_ulang) VALUES (?,?,?,?,?,?)",
+    if (!/^\d{5}$/.test(String(d.kode_pos))) {
+      return NextResponse.json({ error: "Kode pos harus terdiri dari 5 angka." }, { status: 400 });
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(d.tanggal_lahir))) {
+      return NextResponse.json({ error: "Tanggal lahir tidak valid." }, { status: 400 });
+    }
+
+    const nama = String(d.nama_lengkap).trim();
+    const nomorPensiun = String(d.nomor_pensiun).trim();
+    const nomorKta = String(d.nomor_kta || "").trim() || null;
+    const noWa = String(d.no_wa).trim();
+
+    if (nomorKta) {
+      const [existingKta] = await pool.execute(
+        "SELECT id FROM members WHERE nomor_anggota = ? LIMIT 1",
+        [nomorKta]
+      );
+      if (existingKta.length) {
+        return NextResponse.json({ error: "Nomor KTA tersebut sudah terdaftar sebagai nomor anggota." }, { status: 409 });
+      }
+    }
+
+    const [existingPensiun] = await pool.execute(
+      "SELECT id FROM members WHERE nomor_pensiun = ? LIMIT 1",
+      [nomorPensiun]
+    );
+    if (existingPensiun.length) {
+      return NextResponse.json({ error: "Nomor pensiun tersebut sudah terdaftar." }, { status: 409 });
+    }
+
+    const [result] = await pool.execute(
+      `INSERT INTO members (
+        nomor_anggota, nama, no_wa, email, status_kta, status_data_ulang,
+        nomor_pensiun, tanggal_lahir, alamat_lengkap, kode_pos,
+        kabupaten_id, kabupaten, kecamatan_id, kecamatan, kelurahan_id, kelurahan
+      ) VALUES (?, ?, ?, NULL, ?, 'BLMDU', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         nomorKta,
-        String(d.nama_lengkap).trim(),
-        String(d.no_wa).trim(),
-        null,
+        nama,
+        noWa,
         nomorKta ? "Sudah" : "Belum",
-        "BLMDU"
+        nomorPensiun,
+        d.tanggal_lahir,
+        String(d.alamat_lengkap).trim(),
+        String(d.kode_pos).trim(),
+        kabupatenId,
+        kabupaten,
+        d.kecamatan_id ? String(d.kecamatan_id) : null,
+        String(d.kecamatan).trim(),
+        d.kelurahan_id ? String(d.kelurahan_id) : null,
+        String(d.kelurahan).trim(),
       ]
     );
 
-    const [requestResult] = await connection.execute(`
-      INSERT INTO data_ulang_requests
-      (nama_lengkap,nomor_pensiun,nomor_kta,no_wa,tanggal_lahir,alamat_lengkap,kode_pos,provinsi_id,provinsi,kabupaten_id,kabupaten,kecamatan_id,kecamatan,kelurahan_id,kelurahan)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-    `,[
-      String(d.nama_lengkap).trim(),
-      String(d.nomor_pensiun).trim(),
-      nomorKta,
-      String(d.no_wa).trim(),
-      d.tanggal_lahir,
-      String(d.alamat_lengkap).trim(),
-      String(d.kode_pos),
-      "32",
-      "Jawa Barat",
-      String(d.kabupaten_id),
-      kabupaten,
-      d.kecamatan_id || null,
-      String(d.kecamatan).trim(),
-      d.kelurahan_id || null,
-      String(d.kelurahan).trim()
-    ]);
-
-    await connection.commit();
     return NextResponse.json({
-      success:true,
-      id:requestResult.insertId,
-      member_id:memberResult.insertId,
-      message:"Pendaftaran berhasil dikirim. Data anggota telah tersimpan dan permohonan menunggu verifikasi."
-    },{status:201});
+      success: true,
+      member_id: result.insertId,
+      message: "Pendaftaran berhasil. Data Anda sudah tersimpan sebagai anggota HIMPANA Cabang Bandung dengan status BLMDU.",
+    }, { status: 201 });
   } catch (error) {
-    if (connection) await connection.rollback();
-    console.error("Data ulang request error:",error);
+    console.error("Register member error:", error);
     if (error?.code === "ER_DUP_ENTRY") {
-      return NextResponse.json({error:"Nomor KTA tersebut sudah digunakan oleh anggota lain."},{status:409});
+      return NextResponse.json({ error: "Nomor KTA atau nomor pensiun tersebut sudah terdaftar." }, { status: 409 });
     }
-    return NextResponse.json({error:"Pendaftaran belum dapat disimpan. Silakan coba kembali."},{status:500});
-  } finally {
-    connection?.release();
+    return NextResponse.json({ error: "Pendaftaran belum dapat disimpan. Silakan coba kembali." }, { status: 500 });
   }
 }
