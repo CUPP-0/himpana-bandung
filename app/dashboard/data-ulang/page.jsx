@@ -13,7 +13,7 @@ const opts = [
   ["BWDU", "Blm Wajib Data Ulang"],
   ["BLMDU", "Blm Data Ulang"],
 ];
-const field = "h-10 rounded-lg border border-[#dfe7e2] bg-white px-3 text-xs outline-none focus:border-[#69a987]";
+const field = "h-10 rounded-lg border border-[#dfe7e2] bg-white px-3 text-xs outline-none focus:border-[#2563eb]";
 const btn = "inline-flex items-center justify-center gap-2 rounded-lg border border-[#e7ede9] bg-white px-3 py-2.5 text-xs font-bold";
 
 export default function DataUlang() {
@@ -64,11 +64,11 @@ export default function DataUlang() {
         <h1 className="text-2xl font-extrabold">Data Ulang</h1>
         <p className="mt-1 text-xs text-[#718078]">Monitoring dan pembaruan progres data ulang anggota.</p>
       </div>
-      <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[#e6f5eb] px-3 py-1.5 text-[10px] font-bold text-[#187548]">
+      <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[#eff6ff] px-3 py-1.5 text-[10px] font-bold text-[#1e40af]">
         <ClipboardCheck size={13}/> Monitoring Anggota
       </span>
     </div>
-    {msg && <div className="mb-4 rounded-lg bg-[#eef7f0] p-3 text-xs text-[#246b43]">{msg}</div>}
+    {msg && <div className="mb-4 rounded-lg bg-[#eff6ff] p-3 text-xs text-[#1e40af]">{msg}</div>}
     <div className="mb-4 grid grid-cols-2 gap-3 xl:grid-cols-4">
       {stats.map(([label, value]) => <div key={label} className="rounded-xl border border-[#e7ede9] bg-white p-4">
         <label className="text-[11px] text-[#718078]">{label}</label>
@@ -96,7 +96,7 @@ export default function DataUlang() {
               <td className="px-4 py-3">{x.nomor_anggota || "-"}</td>
               <td className="px-4 py-3">{x.no_wa || "-"}</td>
               <td className="px-4 py-3">
-                <span className={"rounded-full px-2.5 py-1 text-[10px] font-bold " + (x.status_data_ulang === "YO" ? "bg-[#e6f5eb] text-[#187548]" : x.status_data_ulang === "BLMDU" ? "bg-[#fff0ee] text-[#c24a40]" : "bg-[#eaf2ff] text-[#3868ae]")}>{x.status_data_ulang}</span>
+                <span className={"rounded-full px-2.5 py-1 text-[10px] font-bold " + (x.status_data_ulang === "YO" ? "bg-[#eff6ff] text-[#1e40af]" : x.status_data_ulang === "BLMDU" ? "bg-[#fff0ee] text-[#c24a40]" : "bg-[#eaf2ff] text-[#3868ae]")}>{x.status_data_ulang}</span>
               </td>
               <td className="px-4 py-3">
                 <select className={field} disabled={busy === x.id} value={x.status_data_ulang} onChange={(e) => change(x.id, e.target.value)}>
