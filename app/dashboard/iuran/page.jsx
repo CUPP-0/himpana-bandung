@@ -62,7 +62,7 @@ export default function Iuran(){
       if(!r.ok)throw new Error(d.error||"Pembayaran gagal disimpan.");
       if(editing){G("Pembayaran berhasil diperbarui.");}
       else{G(d.whatsapp?.sent?"Pembayaran tersimpan dan notifikasi WhatsApp terkirim.":"Pembayaran berhasil dicatat.");}
-      O(false);SetFile(null);await load();
+      O(false);SetFile(null);await load();P({title:"Kuitansi Pembayaran",url:"/api/dues/"+(editing?editing.id:d.id)+"/receipt",download:true});
     }catch(e){G(e.message)}finally{B(false)}
   }
 
