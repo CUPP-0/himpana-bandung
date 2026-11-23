@@ -7,10 +7,14 @@ export async function PATCH(req,{params}) {
     await requireAdmin();
     const {id}=await params;
     const d=await req.json();
-    if(!d.tanggal_bayar || !d.bulan || !d.tahun || Number(d.nominal)<=0) return NextResponse.json({error:"Tanggal, periode, dan nominal wajib diisi."},{status:400});
+    const tanggal=String(d.tanggal_bayar||"");
+    const tanggalValid=/^\\d{4}-\\d{2}-\\d{2}$/.test(tanggal) && !Number.isNaN(Date.parse(tanggal));
+    if(!tanggalValid || Number(d.nominal)<=0) return NextResponse.json({error:"Tanggal dan nominal wajib diisi dengan benar."},{status:400});
+    const bulan=Number(tanggal.slice(5,7));
+    const tahun=Number(tanggal.slice(0,4));
     const [r]=await pool.execute(
       "UPDATE payments SET bulan=?,tahun=?,nominal=?,metode=?,tanggal_bayar=?,bukti_path=COALESCE(?,bukti_path),catatan=? WHERE id=?",
-      [d.bulan,d.tahun,d.nominal,d.metode||"Tunai",d.tanggal_bayar,d.bukti_path||null,d.catatan||null,id]
+      [bulan,tahun,d.nominal,d.metode||"Tunai",tanggal,d.bukti_path||null,d.catatan||null,id]
     );
     if(!r.affectedRows) return NextResponse.json({error:"Transaksi tidak ditemukan."},{status:404});
     return NextResponse.json({success:true});
