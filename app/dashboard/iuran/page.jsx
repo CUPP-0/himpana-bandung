@@ -8,7 +8,7 @@ const money=n=>new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",ma
 const dateText=value=>{if(!value)return "-";const d=new Date(String(value).slice(0,10)+"T00:00:00");return Number.isNaN(d.getTime())?String(value):new Intl.DateTimeFormat("id-ID",{day:"2-digit",month:"long",year:"numeric"}).format(d)};
 const field="h-10 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-800 outline-none transition focus:border-blue-700 focus:ring-4 focus:ring-blue-700/10";
 const btn="inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2.5 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-50";
-const empty=()=>({member_id:"",bulan:String(new Date().getMonth()+1),tahun:String(new Date().getFullYear()),nominal:"",metode:"Transfer",tanggal_bayar:new Date().toISOString().slice(0,10),notify_group:true,catatan:"",bukti_path:""});
+const empty=()=>({member_id:"",nominal:"",metode:"Transfer",tanggal_bayar:new Date().toISOString().slice(0,10),notify_group:true,catatan:"",bukti_path:""});
 
 export default function Iuran(){
   const [rows,S]=useState([]),[members,M]=useState([]),[total,T]=useState(0);
@@ -25,8 +25,8 @@ export default function Iuran(){
   }
   useEffect(()=>{load()},[year]);
 
-  function startCreate(){E(null);F({...empty(),bulan:month,tahun:String(year)});SetFile(null);G("");O(true)}
-  function startEdit(p){E(p);F({member_id:String(p.member_id),bulan:String(p.bulan),tahun:String(p.tahun),nominal:String(p.nominal),metode:p.metode||"Tunai",tanggal_bayar:String(p.tanggal_bayar).slice(0,10),notify_group:false,catatan:p.catatan||"",bukti_path:p.bukti_path||""});SetFile(null);G("");O(true)}
+  function startCreate(){E(null);F(empty());SetFile(null);G("");O(true)}
+  function startEdit(p){E(p);F({member_id:String(p.member_id),nominal:String(p.nominal),metode:p.metode||"Tunai",tanggal_bayar:String(p.tanggal_bayar).slice(0,10),notify_group:false,catatan:p.catatan||"",bukti_path:p.bukti_path||""});SetFile(null);G("");O(true)}
 
   async function uploadSelected(){
     if(!file)return form.bukti_path||"";
@@ -55,7 +55,8 @@ export default function Iuran(){
     e.preventDefault();B(true);G("");
     try{
       const proof=await uploadSelected();
-      const payload={...form,bukti_path:proof,bulan:String(form.bulan),tahun:String(form.tahun)};
+      const tanggal=form.tanggal_bayar;
+      const payload={...form,bukti_path:proof,bulan:String(Number(tanggal.slice(5,7))),tahun:String(Number(tanggal.slice(0,4)))};
       const url=editing?"/api/dues/"+editing.id:"/api/dues";
       const r=await fetch(url,{method:editing?"PATCH":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
       const d=await r.json();
@@ -122,8 +123,6 @@ export default function Iuran(){
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="text-[11px] font-bold text-slate-700">Tanggal bayar<input className={field+" mt-1.5 w-full"} type="date" required value={form.tanggal_bayar} onChange={e=>F({...form,tanggal_bayar:e.target.value})}/></label>
             <label className="text-[11px] font-bold text-slate-700">Nominal (Rp)<input className={field+" mt-1.5 w-full"} type="number" min="1" required value={form.nominal} onChange={e=>F({...form,nominal:e.target.value})} placeholder="Contoh: 100000"/></label>
-            <label className="text-[11px] font-bold text-slate-700">Bulan<select className={field+" mt-1.5 w-full"} value={form.bulan} onChange={e=>F({...form,bulan:e.target.value})}>{months.map((m,i)=><option key={m} value={i+1}>{m}</option>)}</select></label>
-            <label className="text-[11px] font-bold text-slate-700">Tahun<input className={field+" mt-1.5 w-full"} type="number" min="2000" max="2100" required value={form.tahun} onChange={e=>F({...form,tahun:e.target.value})}/></label>
             <label className="text-[11px] font-bold text-slate-700 sm:col-span-2">Metode pembayaran<select className={field+" mt-1.5 w-full"} value={form.metode} onChange={e=>F({...form,metode:e.target.value})}><option value="Transfer">Transfer Bank</option><option value="Tunai">Tunai / Cash</option></select></label>
           </div>
           <div className="rounded-xl border border-dashed border-slate-300 p-4">
