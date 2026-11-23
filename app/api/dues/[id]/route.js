@@ -8,7 +8,7 @@ export async function PATCH(req,{params}) {
     const {id}=await params;
     const d=await req.json();
     const tanggal=String(d.tanggal_bayar||"");
-    const tanggalValid=/^\\d{4}-\\d{2}-\\d{2}$/.test(tanggal) && !Number.isNaN(Date.parse(tanggal));
+    const tanggalValid=/^\d{4}-\d{2}-\d{2}$/.test(tanggal) && !Number.isNaN(Date.parse(tanggal));
     if(!tanggalValid || Number(d.nominal)<=0) return NextResponse.json({error:"Tanggal dan nominal wajib diisi dengan benar."},{status:400});
     const bulan=Number(tanggal.slice(5,7));
     const tahun=Number(tanggal.slice(0,4));
