@@ -22,12 +22,16 @@ export async function POST(req) {
   try {
     await requireAdmin();
     const d = await req.json();
-    if (!d.member_id || !d.bulan || !d.tahun || Number(d.nominal) <= 0 || !d.tanggal_bayar) {
-      return NextResponse.json({error:"Lengkapi anggota, periode, nominal, dan tanggal pembayaran."},{status:400});
+    const tanggal = String(d.tanggal_bayar || "");
+    const tanggalValid = /^\\d{4}-\\d{2}-\\d{2}$/.test(tanggal) && !Number.isNaN(Date.parse(tanggal));
+    if (!d.member_id || !tanggalValid || Number(d.nominal) <= 0) {
+      return NextResponse.json({error:"Lengkapi anggota, tanggal pembayaran, dan nominal."},{status:400});
     }
+    const bulan = Number(tanggal.slice(5,7));
+    const tahun = Number(tanggal.slice(0,4));
     const [r] = await pool.execute(
       "INSERT INTO payments(member_id,bulan,tahun,nominal,metode,tanggal_bayar,status,bukti_path,catatan) VALUES(?,?,?,?,?,?,'Sudah',?,?)",
-      [d.member_id,d.bulan,d.tahun,d.nominal,d.metode||"Tunai",d.tanggal_bayar,d.bukti_path||null,d.catatan||null]
+      [d.member_id,bulan,tahun,d.nominal,d.metode||"Tunai",tanggal,d.bukti_path||null,d.catatan||null]
     );
     const [[m]] = await pool.execute("SELECT nama FROM members WHERE id=?",[d.member_id]);
     let wa={sent:false,reason:"Notifikasi grup tidak diminta."};
@@ -37,7 +41,7 @@ export async function POST(req) {
       if(!groupId) wa={sent:false,reason:"Belum ada grup notifikasi iuran yang dipilih."};
       else {
         const {sendWhatsApp,paymentMessage}=await import("@/lib/whatsapp");
-        wa=await sendWhatsApp(groupId,paymentMessage(m.nama,Number(d.bulan)+" / "+d.tahun));
+        wa=await sendWhatsApp(groupId,paymentMessage(m.nama,bulan+" / "+tahun));
         await pool.execute("INSERT INTO whatsapp_logs(member_id,jenis,target,status,response) VALUES(?,?,?,?,?)",[d.member_id,"iuran_grup",groupId,wa.sent?"terkirim":"gagal",JSON.stringify(wa.reason||wa.id||{})]);
       }
     }
