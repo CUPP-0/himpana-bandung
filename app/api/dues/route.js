@@ -23,7 +23,7 @@ export async function POST(req) {
     await requireAdmin();
     const d = await req.json();
     const tanggal = String(d.tanggal_bayar || "");
-    const tanggalValid = /^\\d{4}-\\d{2}-\\d{2}$/.test(tanggal) && !Number.isNaN(Date.parse(tanggal));
+    const tanggalValid = /^\d{4}-\d{2}-\d{2}$/.test(tanggal) && !Number.isNaN(Date.parse(tanggal));
     if (!d.member_id || !tanggalValid || Number(d.nominal) <= 0) {
       return NextResponse.json({error:"Lengkapi anggota, tanggal pembayaran, dan nominal."},{status:400});
     }
